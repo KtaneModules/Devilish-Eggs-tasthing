@@ -92,6 +92,7 @@ public class devilishEggs : MonoBehaviour
         {
             topRotations[i] = (DERotation) rnd.Range(0, 16);
             bottomRotations[i] = (DERotation) rnd.Range(0, 16);
+            //topRotations[i] = DERotation.W180CW;
         }
         topColor = (DEColor) rnd.Range(0, 4);
         bottomColor = (DEColor) rnd.Range(0, 4);

@@ -14,7 +14,13 @@ MonoBehaviour:
   id: devilishEggs
   title: Devilish Eggs
   author: TasThing
-  description: 
+  description: 'And you thought you were getting an egg pun...
+
+
+    Module idea by Vincology, implementation by TasThing.
+
+
+    ...eggspect the uneggspected.'
   version: 
   outputFolder: build
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 2800000, guid: 79c71156b2edb034ab12f1b8f10ac914, type: 3}
