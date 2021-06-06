@@ -18,9 +18,9 @@ public class devilishEggs : MonoBehaviour
     public Color[] colors;
     public Color cold;
     public Color hot;
-    public Color ledGreen;
-    public Color ledRed;
-    public Color ledOff;
+    public Material ledGreen;
+    public Material ledRed;
+    public Material ledOff;
     public Renderer thermometerLED;
     public Renderer[] stage1LEDs;
     public Renderer[] stage2LEDs;
@@ -38,6 +38,7 @@ public class devilishEggs : MonoBehaviour
     public TextMesh[] numberButtonsTexts;
     public TextMesh[] prismTexts;
     public Texture[] cookingTextures;
+    public TextMesh colorblindText;
 
     private DERotation[] topRotations = new DERotation[6];
     private DERotation[] bottomRotations = new DERotation[6];
@@ -68,6 +69,7 @@ public class devilishEggs : MonoBehaviour
     private bool thermometerAnimating;
     private int enteringStage;
     private float prismSpeed = 20f;
+    private string eggColorsCB;
     private Coroutine topEggRotating;
     private Coroutine bottomEggRotating;
     private Coroutine prismSpinning;
@@ -79,10 +81,19 @@ public class devilishEggs : MonoBehaviour
     void Awake()
     {
         moduleId = moduleIdCounter++;
+        colorblindText.gameObject.SetActive(GetComponent<KMColorblindMode>().ColorblindModeActive);
         foreach (KMSelectable button in numberButtons)
+        {
             button.OnInteract += delegate () { PressNumberButton(button); return false; };
+            button.OnHighlight += delegate () { colorblindText.text = "MYGB"[(int) numberButtonColors[Array.IndexOf(numberButtons, button)]].ToString(); };
+            button.OnHighlightEnded += delegate () { colorblindText.text = eggColorsCB; };
+        }
         foreach (KMSelectable button in cookingButtons)
+        {
             button.OnInteract += delegate () { PressCookingButton(button); return false; };
+            button.OnHighlight += delegate () { if (!stage2) { return; } colorblindText.text = "MYGB"[(int)cookingButtonColors[Array.IndexOf(cookingButtons, button)]].ToString(); };
+            button.OnHighlightEnded += delegate () { colorblindText.text = eggColorsCB; };
+        }
     }
 
     void Start()
@@ -90,17 +101,18 @@ public class devilishEggs : MonoBehaviour
         prismIsCcw = rnd.Range(0, 2) == 0;
         for (int i = 0; i < 6; i++)
         {
-            topRotations[i] = (DERotation) rnd.Range(0, 16);
-            bottomRotations[i] = (DERotation) rnd.Range(0, 16);
-            //topRotations[i] = DERotation.W180CW;
+            topRotations[i] = (DERotation)rnd.Range(0, 16);
+            bottomRotations[i] = (DERotation)rnd.Range(0, 16);
         }
-        topColor = (DEColor) rnd.Range(0, 4);
-        bottomColor = (DEColor) rnd.Range(0, 4);
+        topColor = (DEColor)rnd.Range(0, 4);
+        bottomColor = (DEColor)rnd.Range(0, 4);
+        eggColorsCB = "MYGB"[(int)topColor].ToString() + "MYGB"[(int)bottomColor];
+        colorblindText.text = eggColorsCB;
         while (bottomColor == topColor)
-            bottomColor = (DEColor) rnd.Range(0, 4);
-        cookingButtonColors = Enumerable.Range(0, 4).ToList().Shuffle().Select(x => (DEColor) x).ToArray();
-        numberButtonColors = Enumerable.Range(0, 4).ToList().Shuffle().Select(x => (DEColor) x).ToArray();
-        cookingButtonLabels = Enumerable.Range(0, 4).ToList().Shuffle().Select(x => (DECooking) x).ToArray();
+            bottomColor = (DEColor)rnd.Range(0, 4);
+        cookingButtonColors = Enumerable.Range(0, 4).ToList().Shuffle().Select(x => (DEColor)x).ToArray();
+        numberButtonColors = Enumerable.Range(0, 4).ToList().Shuffle().Select(x => (DEColor)x).ToArray();
+        cookingButtonLabels = Enumerable.Range(0, 4).ToList().Shuffle().Select(x => (DECooking)x).ToArray();
         numberButtonLabels = Enumerable.Range(1, 4).ToList().Shuffle().ToArray();
         temperatures = new int[8].Select(x => x = rnd.Range(0, 5)).ToArray();
         while (temperatures[0] == 4)
@@ -111,9 +123,9 @@ public class devilishEggs : MonoBehaviour
         temperatureLabels = Enumerable.Range(0, 5).ToList().Shuffle().ToArray();
         for (int i = 0; i < 4; i++)
         {
-            topDots[i].material.color = colors[(int) topColor];
-            bottomDots[i].material.color = colors[(int) bottomColor];
-            numberButtonsRenders[i].material.color = colors[(int) numberButtonColors[i]];
+            topDots[i].material.color = colors[(int)topColor];
+            bottomDots[i].material.color = colors[(int)bottomColor];
+            numberButtonsRenders[i].material.color = colors[(int)numberButtonColors[i]];
             numberButtonsTexts[i].text = numberButtonLabels[i].ToString();
         }
         Debug.LogFormat("[Devilish Eggs #{0}] The top egg's rotations are {1}.", moduleId, topRotations.Join(", "));
@@ -254,7 +266,7 @@ public class devilishEggs : MonoBehaviour
         {
             StartCoroutine(TemperatureChange(temperatures[enteringStage]));
             Debug.LogFormat("[Devilish Eggs #{0}] That was correct. The temperature went to the position of {1}, which has the label {2}.", moduleId, (temperatures[enteringStage] + 1) * 5, (temperatureLabels[temperatures[enteringStage]] + 1) * 5);
-            stage1LEDs[enteringStage].material.color = ledGreen;
+            stage1LEDs[enteringStage].material = ledGreen;
             enteringStage++;
         }
         if (enteringStage == 8)
@@ -268,7 +280,7 @@ public class devilishEggs : MonoBehaviour
         if (moduleSolved || !stage2)
             return;
         var ix = Array.IndexOf(cookingButtons, button);
-        Debug.LogFormat("[Devilish Eggs #{0}] You pressed the {1} button.", moduleId, cookingNames[(int) cookingButtonLabels[ix]]);
+        Debug.LogFormat("[Devilish Eggs #{0}] You pressed the {1} button.", moduleId, cookingNames[(int)cookingButtonLabels[ix]]);
         if (cookingButtonLabels[ix] != stage2Solution[enteringStage])
         {
             Debug.LogFormat("[Devilish Eggs #{0}] That was incorrect. Strike!", moduleId);
@@ -277,16 +289,17 @@ public class devilishEggs : MonoBehaviour
         else
         {
             Debug.LogFormat("[Devilish Eggs #{0}] That was correct.", moduleId);
-            stage2LEDs[enteringStage].material.color = ledGreen;
+            stage2LEDs[enteringStage].material = ledGreen;
             enteringStage++;
         }
         if (enteringStage == 4)
         {
             module.HandlePass();
+            colorblindText.gameObject.SetActive(false);
             moduleSolved = true;
             Debug.LogFormat("[Devilish Eggs #{0}] Four cooking buttons were correctly pressed. Module solved!", moduleId);
             Debug.LogFormat("[Devilish Eggs #{0}] Eggstravagent work.", moduleId);
-            thermometerLED.material.color = ledGreen;
+            thermometerLED.material = ledGreen;
             foreach (TextMesh prismText in prismTexts)
                 prismText.text = "EGG EGG EGG";
             StartCoroutine(SlowDownPrism());
@@ -310,14 +323,14 @@ public class devilishEggs : MonoBehaviour
         for (int i = 0; i < 4; i++)
         {
             cookingButtonIcons[i].gameObject.SetActive(true);
-            cookingButtonIcons[i].material.mainTexture = cookingTextures[(int) cookingButtonLabels[i]];
-            cookingButtonRenders[i].material.color = colors[(int) cookingButtonColors[i]];
+            cookingButtonIcons[i].material.mainTexture = cookingTextures[(int)cookingButtonLabels[i]];
+            cookingButtonRenders[i].material.color = colors[(int)cookingButtonColors[i]];
         }
-        Debug.LogFormat("[Devilish Eggs #{0}] The cooking buttons have the labels {1} and the colors {2}.", moduleId, cookingButtonLabels.Select(x => cookingNames[(int) x]).Join(", "), cookingButtonColors.Join(", "));
+        Debug.LogFormat("[Devilish Eggs #{0}] The cooking buttons have the labels {1} and the colors {2}.", moduleId, cookingButtonLabels.Select(x => cookingNames[(int)x]).Join(", "), cookingButtonColors.Join(", "));
 
         for (int i = 0; i < 4; i++)
         {
-            instructions[i] = (DEInstruction) rnd.Range(0, 17);
+            instructions[i] = (DEInstruction)rnd.Range(0, 17);
             switch (instructions[i])
             {
                 case DEInstruction.SS:
@@ -387,7 +400,7 @@ public class devilishEggs : MonoBehaviour
             Debug.LogFormat("[Devilish Eggs #{0}] The {1} temperature reading was at {2} with the label {3}. Moving {4}.", moduleId, ordinals[i], (temperatures[i] + 1) * 5, (temperatureLabels[temperatures[i]] + 1) * 5, letter);
         }
 
-        switch (((int) bottomRotations[5]) / 4)
+        switch (((int)bottomRotations[5]) / 4)
         {
             case 0:
                 grid = gridList.Select((_, i) => i % 5 == 0 ? gridList[i + 4] : gridList[i - 1]).ToArray();
@@ -418,7 +431,7 @@ public class devilishEggs : MonoBehaviour
         };
         for (int i = 0; i < 8; i++)
         {
-            var movement = (DEMovement) ((Array.IndexOf(boxes, boxes.First(x => x.Contains((i < 4 ? topRotations : bottomRotations)[i % 4]))) + prismDigits[i]) % 8);
+            var movement = (DEMovement)((Array.IndexOf(boxes, boxes.First(x => x.Contains((i < 4 ? topRotations : bottomRotations)[i % 4]))) + prismDigits[i]) % 8);
             Debug.LogFormat("[Devilish Eggs #{0}] Using the rotation {1}, moving forward by {2}. Using transformation: {3}.", moduleId, (i < 4 ? topRotations : bottomRotations)[i % 4], prismDigits[i], movement);
             switch (movement)
             {
@@ -439,7 +452,7 @@ public class devilishEggs : MonoBehaviour
         prismTexts[2].text = "<" + str.ToCharArray().Join(" ") + ">";
 
         for (int i = 0; i < 4; i++)
-            Debug.LogFormat("[Devilish Eggs #{0}] The {1} instruction is {2}. Press the {3} button.", moduleId, ordinals[i], instructions[i], cookingNames[(int) stage2Solution[i]]);
+            Debug.LogFormat("[Devilish Eggs #{0}] The {1} instruction is {2}. Press the {3} button.", moduleId, ordinals[i], instructions[i], cookingNames[(int)stage2Solution[i]]);
     }
 
     IEnumerator StartRotations()
@@ -463,7 +476,7 @@ public class devilishEggs : MonoBehaviour
         {
             for (int i = 0; i < 6; i++)
             {
-                var id = (int) rotations[i];
+                var id = (int)rotations[i];
                 var elapsed = 0f;
                 var duration = 1f * (id % 4 + 1);
                 var isTurn = id < 8;
@@ -477,7 +490,7 @@ public class devilishEggs : MonoBehaviour
                 var end = start + angle;
                 while (elapsed < duration)
                 {
-                    var cord =  Mathf.Lerp(start, end, elapsed / duration);
+                    var cord = Mathf.Lerp(start, end, elapsed / duration);
                     egg.localEulerAngles = isTurn ? new Vector3(startRotation.x, startRotation.y, cord) : new Vector3(startRotation.x, cord, startRotation.z);
                     yield return null;
                     elapsed += Time.deltaTime;
@@ -513,7 +526,7 @@ public class devilishEggs : MonoBehaviour
         var duration = 2f;
         thermometerAnimating = true;
         if (!moduleSolved)
-            thermometerLED.material.color = ledRed;
+            thermometerLED.material = ledRed;
         while (elapsed < duration)
         {
             mercury.localPosition = new Vector3(0f, Mathf.Lerp(startPos, endPos, elapsed / duration), .062f);
@@ -530,7 +543,7 @@ public class devilishEggs : MonoBehaviour
         mercury.localScale = new Vector3(.9202852f, endScale, 1f);
         mercuryRender.material.color = endColor;
         if (!moduleSolved)
-            thermometerLED.material.color = ledOff;
+            thermometerLED.material = ledOff;
         thermometerAnimating = false;
     }
 
@@ -538,12 +551,12 @@ public class devilishEggs : MonoBehaviour
     {
         var rotation = 0f;
         while (true)
-    	{
+        {
             var framerate = 1f / Time.deltaTime;
-    		rotation += prismSpeed / framerate * (prismIsCcw ? -1 : 1);
-    		prism.localEulerAngles = new Vector3(rotation, 0f, 0f);
-    		yield return null;
-    	}
+            rotation += prismSpeed / framerate * (prismIsCcw ? -1 : 1);
+            prism.localEulerAngles = new Vector3(rotation, 0f, 0f);
+            yield return null;
+        }
     }
 
     IEnumerator ResetTemperature()
@@ -656,9 +669,9 @@ public class devilishEggs : MonoBehaviour
     }
 
     // Twitch Plays
-    #pragma warning disable 414
+#pragma warning disable 414
     private readonly string TwitchHelpMessage = "!{0} 1234 [Pushes the number buttons with those labels.] !{0} scrambled fried [Pressed the Scrambled cooking button and then the Fried cooking button. Valid cooking buttons are scrambled, fried, boiled, and sunny.]";
-    #pragma warning restore 414
+#pragma warning restore 414
 
     IEnumerator ProcessTwitchCommand(string input)
     {
@@ -686,7 +699,7 @@ public class devilishEggs : MonoBehaviour
             }
             for (int i = 0; i < inputArray.Length; i++)
             {
-                cookingButtons[Array.IndexOf(cookingButtonLabels, (DECooking) Array.IndexOf(commands, inputArray[i]))].OnInteract();
+                cookingButtons[Array.IndexOf(cookingButtonLabels, (DECooking)Array.IndexOf(commands, inputArray[i]))].OnInteract();
                 yield return new WaitForSeconds(.1f);
             }
         }
@@ -703,7 +716,7 @@ public class devilishEggs : MonoBehaviour
             while (thermometerAnimating)
                 yield return true;
         }
-        secondStage:
+    secondStage:
         while (!moduleSolved)
         {
             cookingButtons[Array.IndexOf(cookingButtonLabels, stage2Solution[enteringStage])].OnInteract();
