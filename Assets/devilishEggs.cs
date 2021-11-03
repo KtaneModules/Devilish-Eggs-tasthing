@@ -450,6 +450,7 @@ public class devilishEggs : MonoBehaviour
             }
         }
         prismTexts[2].text = "<" + str.ToCharArray().Join(" ") + ">";
+        Debug.LogFormat("[Devilish Eggs #{0}] Undecrypted new string: {1}", moduleId, prismTexts[2].text);
 
         for (int i = 0; i < 4; i++)
             Debug.LogFormat("[Devilish Eggs #{0}] The {1} instruction is {2}. Press the {3} button.", moduleId, ordinals[i], instructions[i], cookingNames[(int)stage2Solution[i]]);
