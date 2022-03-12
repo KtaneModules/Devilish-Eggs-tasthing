@@ -78,7 +78,7 @@ public class devilishEggs : MonoBehaviour
     private int moduleId;
     private bool moduleSolved;
 
-    void Awake()
+    private void Awake()
     {
         moduleId = moduleIdCounter++;
         colorblindText.gameObject.SetActive(GetComponent<KMColorblindMode>().ColorblindModeActive);
@@ -96,7 +96,7 @@ public class devilishEggs : MonoBehaviour
         }
     }
 
-    void Start()
+    private void Start()
     {
         prismIsCcw = rnd.Range(0, 2) == 0;
         for (int i = 0; i < 6; i++)
@@ -106,10 +106,10 @@ public class devilishEggs : MonoBehaviour
         }
         topColor = (DEColor)rnd.Range(0, 4);
         bottomColor = (DEColor)rnd.Range(0, 4);
-        eggColorsCB = "MYGB"[(int)topColor].ToString() + "MYGB"[(int)bottomColor];
-        colorblindText.text = eggColorsCB;
         while (bottomColor == topColor)
             bottomColor = (DEColor)rnd.Range(0, 4);
+        eggColorsCB = "MYGB"[(int)topColor].ToString() + "MYGB"[(int)bottomColor];
+        colorblindText.text = eggColorsCB;
         cookingButtonColors = Enumerable.Range(0, 4).ToList().Shuffle().Select(x => (DEColor)x).ToArray();
         numberButtonColors = Enumerable.Range(0, 4).ToList().Shuffle().Select(x => (DEColor)x).ToArray();
         cookingButtonLabels = Enumerable.Range(0, 4).ToList().Shuffle().Select(x => (DECooking)x).ToArray();
@@ -273,7 +273,7 @@ public class devilishEggs : MonoBehaviour
             StageTwo();
     }
 
-    void PressCookingButton(KMSelectable button)
+    private void PressCookingButton(KMSelectable button)
     {
         button.AddInteractionPunch(.5f);
         audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, button.transform);
@@ -314,7 +314,7 @@ public class devilishEggs : MonoBehaviour
         }
     }
 
-    void StageTwo()
+    private void StageTwo()
     {
         stage2 = true;
         enteringStage = 0;
@@ -456,7 +456,7 @@ public class devilishEggs : MonoBehaviour
             Debug.LogFormat("[Devilish Eggs #{0}] The {1} instruction is {2}. Press the {3} button.", moduleId, ordinals[i], instructions[i], cookingNames[(int)stage2Solution[i]]);
     }
 
-    IEnumerator StartRotations()
+    private IEnumerator StartRotations()
     {
         var topFirst = rnd.Range(0, 2) == 0;
         yield return new WaitForSeconds(rnd.Range(.5f, 2f));
@@ -471,7 +471,7 @@ public class devilishEggs : MonoBehaviour
             topEggRotating = StartCoroutine(RotationCycle(topPivots, topRotations));
     }
 
-    IEnumerator RotationCycle(Transform[] pivots, DERotation[] rotations)
+    private IEnumerator RotationCycle(Transform[] pivots, DERotation[] rotations)
     {
         while (true)
         {
@@ -503,7 +503,7 @@ public class devilishEggs : MonoBehaviour
         }
     }
 
-    IEnumerator TemperatureChange(int targetTemp)
+    private IEnumerator TemperatureChange(int targetTemp)
     {
         var decimalThings = new float[] { .125f, .25f, .5f, .75f, 1f };
         var scales = new float[] { .1208972f, .2417942f, .4835888f, .7253833f, .9671777f };
@@ -548,7 +548,7 @@ public class devilishEggs : MonoBehaviour
         thermometerAnimating = false;
     }
 
-    IEnumerator PrismCycle()
+    private IEnumerator PrismCycle()
     {
         var rotation = 0f;
         while (true)
@@ -560,13 +560,13 @@ public class devilishEggs : MonoBehaviour
         }
     }
 
-    IEnumerator ResetTemperature()
+    private IEnumerator ResetTemperature()
     {
         yield return new WaitForSeconds(15f);
         StartCoroutine(TemperatureChange(4));
     }
 
-    IEnumerator SlowDownPrism()
+    private IEnumerator SlowDownPrism()
     {
         var elapsed = 0f;
         var duration = 5f;
@@ -579,7 +579,7 @@ public class devilishEggs : MonoBehaviour
         StopCoroutine(prismSpinning);
     }
 
-    IEnumerator HideDot(Transform dot)
+    private IEnumerator HideDot(Transform dot)
     {
         var elapsed = 0f;
         var duration = 1f;
@@ -596,7 +596,7 @@ public class devilishEggs : MonoBehaviour
         }
     }
 
-    IEnumerator ResetEggs()
+    private IEnumerator ResetEggs()
     {
         var elapsed = 0f;
         var duration = 1f;
@@ -613,7 +613,7 @@ public class devilishEggs : MonoBehaviour
         }
     }
 
-    static int[] Swap(int[] start, int pos1, int pos2)
+    private static int[] Swap(int[] start, int pos1, int pos2)
     {
         pos1--;
         pos2--;
@@ -624,7 +624,7 @@ public class devilishEggs : MonoBehaviour
         return start;
     }
 
-    static char[] Swap(char[] start, int pos1, int pos2)
+    private static char[] Swap(char[] start, int pos1, int pos2)
     {
         pos1--;
         pos2--;
@@ -635,7 +635,7 @@ public class devilishEggs : MonoBehaviour
         return start;
     }
 
-    static int[] Shift(int[] start, int x)
+    private static int[] Shift(int[] start, int x)
     {
         var str = start.Join("");
         str = str.Substring(str.Length - x) + str.Substring(0, str.Length - x);
@@ -644,14 +644,14 @@ public class devilishEggs : MonoBehaviour
         return start;
     }
 
-    static char[] Shift(char[] start, int x)
+    private static char[] Shift(char[] start, int x)
     {
         var str = start.Join("");
         str = str.Substring(str.Length - x) + str.Substring(0, str.Length - x);
         return str.ToCharArray();
     }
 
-    static int Process(int sq, DEMovement instruction)
+    private static int Process(int sq, DEMovement instruction)
     {
         int x = sq % 5, y = sq / 5;
         int x2 = x, y2 = y;
@@ -674,7 +674,7 @@ public class devilishEggs : MonoBehaviour
     private readonly string TwitchHelpMessage = "!{0} 1234 [Pushes the number buttons with those labels.] !{0} scrambled fried [Pressed the Scrambled cooking button and then the Fried cooking button. Valid cooking buttons are scrambled, fried, boiled, and sunny.]";
 #pragma warning restore 414
 
-    IEnumerator ProcessTwitchCommand(string input)
+    private IEnumerator ProcessTwitchCommand(string input)
     {
         input = input.ToLowerInvariant();
         if (input.Replace(" ", "").All(x => "1234".Contains(x)))
@@ -707,7 +707,7 @@ public class devilishEggs : MonoBehaviour
         yield break;
     }
 
-    IEnumerator TwitchHandleForcedSolve()
+    private IEnumerator TwitchHandleForcedSolve()
     {
         if (stage2)
             goto secondStage;

@@ -15,8 +15,9 @@ MonoBehaviour:
   title: Devilish Eggs
   author: TasThing
   description: "And you thought you were getting an egg pun...\r\n\r\nModule idea
-    by Vincology, implementation by TasThing.\r\n\r\nManual HTML: https://ktane.timwi.de/HTML/Devilish%20Eggs.html\r\nManual
-    PDF: https://ktane.timwi.de/PDF/Devilish%20Eggs.pdf\r\n\r\n...eggspect the uneggspected."
-  version: 1.1.1
+    by Vincology, implementation by TasThing.\r\n\r\n[url=https://ktane.timwi.de/HTML/Devilish%20Eggs.html]Manual
+    HTML[/url]\r\n[url=https://ktane.timwi.de/PDF/Devilish%20Eggs.pdf\r]Manual PDF[/url]\n\r\n...eggspect
+    the uneggspected."
+  version: 1.1.2
   outputFolder: build
   previewImage: {fileID: 2800000, guid: 79c71156b2edb034ab12f1b8f10ac914, type: 3}
